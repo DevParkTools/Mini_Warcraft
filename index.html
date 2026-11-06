@@ -15,7 +15,7 @@ canvas{display:block;position:fixed;left:0;top:0;width:100vw;height:100vh;height
 const cv=document.getElementById('cv');
 const X=cv.getContext('2d');
 const DW=1280,DH=720,HK=1.125,HR=203;
-let W=1280,H=720,VH=540,PORT=false,TALL=false;
+let W=1280,H=720,VH=540,PORT=false,TALL=false,RS=1;
 const IS_TOUCH=('ontouchstart' in window)||navigator.maxTouchPoints>0;
 const LAY={w:0,h:0};
 const ROTN=['자동','가로 고정','세로 고정'];
@@ -37,7 +37,7 @@ else{cs.width='';cs.height='';cs.transformOrigin='';cs.transform='';}
 const port=ih>iw*1.15;
 if(port){W=1280;H=Math.max(720,Math.min(3000,Math.round(1280*ih/iw)));VH=540;}
 else{W=Math.max(1280,Math.min(1600,Math.round(720*iw/ih)));H=720;VH=540;}
-PORT=false;TALL=port;cv.width=W;cv.height=H;
+PORT=false;TALL=port;RS=Math.max(1,Math.min(2,Math.round(Math.min(iw/W,ih/H)*(window.devicePixelRatio||1)*4)/4));cv.width=Math.round(W*RS);cv.height=Math.round(H*RS);X.setTransform(RS,0,0,RS,0,0);X.imageSmoothingQuality='high';
 if(window.__vigReady)rebuildVig();
 }
 setLayout();
@@ -50,7 +50,7 @@ const FONT='"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif';
 const OUT='#150e07';
 let T=0;
 let scene=0;
-const opt={bv:1,sv:1,spd:1,tut:true,sound:true,map:0,diff:1,pr:0,ar:1,pc:0,ac:1,hc:0};
+const opt={bv:1,sv:1,spd:1,tut:false,sound:true,map:0,diff:1,pr:0,ar:1,pc:0,ac:1,hc:0};
 const PCOL=['#3a8aff','#ff4a3a','#2ee6b0','#9a4ad8','#ffb020','#3ddb4a','#ff7ac0','#d8d8d8'];
 const HCM=[1,0.8,1.25];
 
@@ -3754,9 +3754,9 @@ const TUT=[
 {t:'병력을 모아 공격 이동(A+클릭 / 공격 버튼)으로 오른쪽 위 적 기지를 공격하세요. 적 건물을 모두 부수면 승리!',tt:'병력을 모아 공격 버튼을 누르고 오른쪽 위 적 기지를 탭하세요. 적 건물을 모두 부수면 승리!',ok:function(){return G.kills>=4;}}
 ];
 function hasBldAny(k){for(let i=0;i<G.blds.length;i++){const b=G.blds[i];if(b.team===0&&b.k===k)return true;}return false;}
-function tutInit(){G.tut=opt.tut?0:-1;G.tutT=0;G.tutFlash=0;}
+function tutInit(){G.tut=-1;G.tutT=0;G.tutFlash=0;}
 function tutUpdate(dt){
-if(G.tut<0||G.over)return;
+G.tut=-1;return;
 G.tutT-=dt;
 if(G.tutFlash>0)G.tutFlash-=dt;
 if(G.tutT>0)return;
@@ -4103,7 +4103,7 @@ if(k==='merc'){g.strokeStyle='rgba(230,200,90,.7)';g.lineWidth=2;g.beginPath();g
 figUnit(g,k,r,ph,wk,ro);
 }
 
-const SPC=new Map(),SPS=1.6,SPW=96,SPH=112,SPOX=48,SPOY=86,KIX={worker:0,foot:1,archer:2,knight:3,priest:4,siege:5,flyer:6,merc:7,creep:8,ogre:9,hero:10};
+const SPC=new Map(),SPS=2.4,SPW=96,SPH=112,SPOX=48,SPOY=86,KIX={worker:0,foot:1,archer:2,knight:3,priest:4,siege:5,flyer:6,merc:7,creep:8,ogre:9,hero:10};
 let spCount=0;
 function spriteClear(){SPC.clear();spCount=0;}
 function bodyCached(g,u,wk,dirI,sw){
@@ -5341,7 +5341,7 @@ lastAuto=0;
 scene=1;
 G.sel=[G.blds[0]];
 setBgm('battle',G.race[0]);
-say('본진에서 일꾼을 훈련하고, 제단에서 영웅을 소환하세요');
+
 }
 
 function toTitle(){
@@ -5960,7 +5960,7 @@ X.fillStyle='#d8c79a';X.font='700 18px '+FONT;
 const sb={x:420,y:120,w:440,h:44,id:'sound'};obPush(sb);drawBtn(X,sb,'소리  '+(opt.sound?'켜짐':'꺼짐'),opt.sound);
 const bv={x:420,y:172,w:440,h:44,id:'bv'};obPush(bv);drawBtn(X,bv,'배경음 크기  '+vt(opt.bv),opt.bv<1);
 const sv={x:420,y:224,w:440,h:44,id:'sv'};obPush(sv);drawBtn(X,sv,'효과음 크기  '+vt(opt.sv),opt.sv<1);
-const tb={x:420,y:276,w:440,h:44,id:'tut'};obPush(tb);drawBtn(X,tb,'튜토리얼 안내  '+(opt.tut?'켜짐':'꺼짐'),opt.tut);
+
 const pb={x:420,y:328,w:440,h:44,id:'spd'};obPush(pb);drawBtn(X,pb,'게임 속도  x'+opt.spd,opt.spd!==1);
 X.fillStyle='#d8c79a';X.font='700 18px '+FONT;const rb={x:420,y:380,w:440,h:44,id:'rot'};obPush(rb);drawBtn(X,rb,'화면 방향  '+ROTN[ROT],ROT!==0);
 X.fillStyle='#d8c79a';X.font='700 18px '+FONT;X.fillText('난이도 (적 AI 강도)',420,470);
@@ -6042,7 +6042,7 @@ if(e.team===0)setCursor('p','pointer');else setCursor('d','default');
 }
 function frame(t){
 const dt=Math.min(0.05,(t-lastMs)/1000);
-lastMs=t;T=t/1000;layoutCheck();
+lastMs=t;T=t/1000;layoutCheck();X.setTransform(RS,0,0,RS,0,0);
 if(scene===1){
 if(TALL){X.fillStyle='#000';X.fillRect(0,0,W,H);}
 camUpdate(dt);
